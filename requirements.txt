@@ -1,4 +1,6 @@
 langchain
+langchain-community
+langchain-openai
 unstructured # Document loading
 chromadb # Vector storage
 openai # For embeddings
