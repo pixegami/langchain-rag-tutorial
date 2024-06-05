@@ -1,10 +1,16 @@
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.evaluation import load_evaluator
+from dotenv import load_dotenv
+import os
 
+# Load environment variables. Assumes that project contains .env file with API keys
+load_dotenv()
 
 def main():
     # Get embedding for a word.
-    embedding_function = OpenAIEmbeddings()
+    #-- Change environment variable name from "OPENAI_API_KEY_RAG" to the name given in 
+    # your .env file
+    embedding_function = OpenAIEmbeddings(api_key=os.environ['OPENAI_API_KEY_RAG'])
     vector = embedding_function.embed_query("apple")
     print(f"Vector for 'apple': {vector}")
     print(f"Vector length: {len(vector)}")
