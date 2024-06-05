@@ -9,10 +9,9 @@
     ```python
      conda install onnxruntime -c conda-forge
     ```
+    See this [thread](https://github.com/microsoft/onnxruntime/issues/11037) for additonal help if needed. 
 
-See this [thread](https://github.com/microsoft/onnxruntime/issues/11037) for additonal help if needed. 
-
-    - For Windows users, follow the guide [here](https://github.com/bycloudai/InstallVSBuildToolsWindows?tab=readme-ov-file) to install the Microsoft C++ Build Tools. Be sure to follow through to the last step to set the enviroment variable path.
+     - For Windows users, follow the guide [here](https://github.com/bycloudai/InstallVSBuildToolsWindows?tab=readme-ov-file) to install the Microsoft C++ Build Tools. Be sure to follow through to the last step to set the enviroment variable path.
 
 
 2. Now run this command to install dependenies in the `requirements.txt` file. 
@@ -35,10 +34,12 @@ Create the Chroma DB.
 python create_database.py
 ```
 
+## Query the database
+
 Query the Chroma DB.
 
 ```python
 python query_data.py "How does Alice meet the Mad Hatter?"
 ```
 
-You'll also need to set up an OpenAI account (and set the OpenAI key in your environment variable) for this to work.
+> You'll also need to set up an OpenAI account (and set the OpenAI key in your environment variable) for this to work.
