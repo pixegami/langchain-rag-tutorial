@@ -44,4 +44,4 @@ python query_data.py "How does Alice meet the Mad Hatter?"
 
 > You'll also need to set up an OpenAI account (and set the OpenAI key in your environment variable) for this to work.
 
-> Here is a step-by-step tutorial video: https://www.youtube.com/watch?v=tcqEUSNCn8I&ab_channel=pixegami
+Here is a step-by-step tutorial video: [RAG+Langchain Python Project: Easy AI/Chat For Your Docs](https://www.youtube.com/watch?v=tcqEUSNCn8I&ab_channel=pixegami).
