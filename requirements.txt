@@ -9,5 +9,5 @@ unstructured==0.14.4 # Document loading
 chromadb==0.5.0 # Vector storage
 openai==1.31.1 # For embeddings
 tiktoken==0.7.0  # For embeddings 
-
+uvicorn==0.34.2
 # install markdown depenendies with: `pip install "unstructured[md]"` after install the requirements file. Leave this line commented out. 
