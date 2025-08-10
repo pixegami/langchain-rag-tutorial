@@ -1,52 +1,55 @@
+import os
 import argparse
-# from dataclasses import dataclass
-from langchain_community.vectorstores import Chroma
-from langchain_openai import OpenAIEmbeddings
-from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+if not os.getenv("OPENAI_API_KEY"):
+    raise ValueError("OPENAI_API_KEY not found in .env")
+
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_chroma import Chroma
+from langchain.tools import Tool
+from langchain.agents import initialize_agent, AgentType
+from langchain.prompts import PromptTemplate
 
 CHROMA_PATH = "chroma"
 
-PROMPT_TEMPLATE = """
-Answer the question based only on the following context:
-
-{context}
-
----
-
-Answer the question based on the above context: {question}
-"""
-
-
 def main():
-    # Create CLI.
     parser = argparse.ArgumentParser()
     parser.add_argument("query_text", type=str, help="The query text.")
     args = parser.parse_args()
     query_text = args.query_text
 
-    # Prepare the DB.
+    # Prepare DB + retriever
     embedding_function = OpenAIEmbeddings()
-    db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedding_function)
+    db = Chroma(
+        persist_directory=CHROMA_PATH,
+        embedding_function=embedding_function
+    )
+    retriever = db.as_retriever(search_kwargs={"k": 3})
 
-    # Search the DB.
-    results = db.similarity_search_with_relevance_scores(query_text, k=3)
-    if len(results) == 0 or results[0][1] < 0.7:
-        print(f"Unable to find matching results.")
-        return
+    # Define a retrieval tool
+    retrieval_tool = Tool(
+        name="Document Search",
+        func=lambda q: "\n".join([doc.page_content for doc in retriever.get_relevant_documents(q)]),
+        description="Searches the knowledge base for relevant information to answer a question."
+    )
 
-    context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
-    prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
-    prompt = prompt_template.format(context=context_text, question=query_text)
-    print(prompt)
+    # LLM
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
-    model = ChatOpenAI()
-    response_text = model.predict(prompt)
+    # Agent
+    agent = initialize_agent(
+        tools=[retrieval_tool],
+        llm=llm,
+        agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+        verbose=True
+    )
 
-    sources = [doc.metadata.get("source", None) for doc, _score in results]
-    formatted_response = f"Response: {response_text}\nSources: {sources}"
-    print(formatted_response)
-
+    # Ask the agent
+    answer = agent.run(query_text)
+    print("\nFinal Answer:\n", answer)
 
 if __name__ == "__main__":
     main()

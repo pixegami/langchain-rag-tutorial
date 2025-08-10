@@ -1,47 +1,68 @@
-# Langchain RAG Tutorial
+# Agentic RAG with LangChain
 
-## Install dependencies
+This project demonstrates how to build an Agentic Retrieval-Augmented Generation (RAG) pipeline using LangChain, where an LLM-powered agent can decide when and how to retrieve information from your knowledge base, instead of blindly fetching context every time. The agent dynamically chooses retrieval, reasoning, and tool usage, allowing more efficient and context-aware responses.
 
-1. Do the following before installing the dependencies found in `requirements.txt` file because of current challenges installing `onnxruntime` through `pip install onnxruntime`. 
+## 🛠 Installation
 
-    - For MacOS users, a workaround is to first install `onnxruntime` dependency for `chromadb` using:
+### 1. Environment Setup
+Some dependencies (like `onnxruntime`) can be tricky to install depending on your OS. Follow the steps for your platform before running `pip install`.
 
-    ```python
-     conda install onnxruntime -c conda-forge
-    ```
-    See this [thread](https://github.com/microsoft/onnxruntime/issues/11037) for additonal help if needed. 
+#### MacOS
+```bash
+conda install onnxruntime -c conda-forge
+```
+See the [onnxruntime GitHub issue](https://github.com/microsoft/onnxruntime) for extra help.
 
-     - For Windows users, follow the guide [here](https://github.com/bycloudai/InstallVSBuildToolsWindows?tab=readme-ov-file) to install the Microsoft C++ Build Tools. Be sure to follow through to the last step to set the enviroment variable path.
+#### Windows
+Follow [this guide](https://docs.microsoft.com/en-us/cpp/build/vscpp-step-by-step) to install Microsoft C++ Build Tools, making sure to set the environment variable path.
 
-
-2. Now run this command to install dependenies in the `requirements.txt` file. 
-
-```python
+### 2. Install Requirements
+```bash
 pip install -r requirements.txt
 ```
 
-3. Install markdown depenendies with: 
-
-```python
+### 3. Install Markdown Dependencies
+```bash
 pip install "unstructured[md]"
 ```
 
-## Create database
+## 📂 Building the Knowledge Base
+This step ingests your documents into a Chroma vector database so the agent can retrieve relevant chunks when needed.
 
-Create the Chroma DB.
-
-```python
+```bash
 python create_database.py
 ```
 
-## Query the database
+## 💬 Running the Agentic RAG
+Instead of a simple retrieval pipeline, here the agent:
+- Reads your query.
+- Decides whether retrieval is needed.
+- Queries Chroma DB only if relevant.
+- Combines retrieved context with its own reasoning.
 
-Query the Chroma DB.
-
-```python
-python query_data.py "How does Alice meet the Mad Hatter?"
+Example query:
+```bash
+python agentic_query.py "How does Alice meet the Mad Hatter?"
 ```
 
-> You'll also need to set up an OpenAI account (and set the OpenAI key in your environment variable) for this to work.
+## 🔑 API Keys
+You’ll need an OpenAI API key set in your environment variables:
 
-Here is a step-by-step tutorial video: [RAG+Langchain Python Project: Easy AI/Chat For Your Docs](https://www.youtube.com/watch?v=tcqEUSNCn8I&ab_channel=pixegami).
+```bash
+# Mac/Linux
+export OPENAI_API_KEY="your_api_key_here"
+
+# Windows
+setx OPENAI_API_KEY "your_api_key_here"
+```
+
+## 📺 Reference Tutorial
+While this project is based on traditional RAG examples like [Pixegami’s LangChain RAG tutorial](https://github.com/pixegami/langchain-rag-tutorial), the code here has been adapted for Agentic RAG — allowing more intelligent, context-aware querying.
+
+## 📜 Features of Agentic RAG vs Traditional RAG
+| Feature                     | Traditional RAG         | Agentic RAG            |
+|-----------------------------|-------------------------|------------------------|
+| Always fetches context      | ✅ Always              | 🔄 Only when needed   |
+| Reasoning before retrieval  | ❌ No                  | ✅ Yes                |
+| Multi-tool orchestration    | ❌ Limited             | ✅ Yes                |
+| Efficiency                  | ⚠️ Sometimes redundant | 🚀 Optimized          |
