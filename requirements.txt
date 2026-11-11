@@ -13,5 +13,7 @@ httpx==0.27.2
 neo4j==6.4.1
 python-dotenv
 pytest
+fastapi>=0.111
+uvicorn[standard]>=0.30
 
 # install markdown depenendies with: `pip install "unstructured[md]"` after install the requirements file. Leave this line commented out. 
