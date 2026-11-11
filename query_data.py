@@ -1,4 +1,6 @@
 import argparse
+from dotenv import load_dotenv
+
 # from dataclasses import dataclass
 from langchain_community.vectorstores import Chroma
 from langchain_openai import OpenAIEmbeddings
@@ -19,6 +21,7 @@ Answer the question based on the above context: {question}
 
 
 def main():
+    load_dotenv()
     # Create CLI.
     parser = argparse.ArgumentParser()
     parser.add_argument("query_text", type=str, help="The query text.")
@@ -40,8 +43,9 @@ def main():
     prompt = prompt_template.format(context=context_text, question=query_text)
     print(prompt)
 
-    model = ChatOpenAI()
-    response_text = model.predict(prompt)
+    model = ChatOpenAI(model="gpt-4.1-mini", temperature=0)
+    response = model.invoke(prompt)
+    response_text = response.content
 
     sources = [doc.metadata.get("source", None) for doc, _score in results]
     formatted_response = f"Response: {response_text}\nSources: {sources}"
