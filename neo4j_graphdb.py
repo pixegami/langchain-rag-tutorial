@@ -126,7 +126,7 @@ class GraphRepository:
                             f"of item {index}."
                         )
 
-                    if not isinstance(sense[field], str) or not sense[field].strip():
+                    if not isinstance(sense[field], str) or (field != "sense" and not sense[field].strip()):
                         raise ValueError(
                             f"Invalid '{field}' in sense at index {sense_index} "
                             f"of item {index}."
@@ -171,7 +171,8 @@ class GraphRepository:
             synset_id: sense_data.synset_id
         })
 
-        SET sense.sense = sense_data.sense
+        // Don't overwrite a stored definition with an empty one.
+        SET sense.sense = CASE WHEN sense_data.sense <> "" THEN sense_data.sense ELSE sense.sense END
 
         MERGE (chunk)-[rel:MENTIONS {
             surface: sense_data.surface
@@ -236,3 +237,29 @@ class GraphRepository:
             raise ValueError("Input data must be a single object (dictionary).")
     
         return self.insert_data([data])
+
+    # --------------------------------------------------
+    # Querying
+    # --------------------------------------------------
+
+    def find_chunks_by_synset_ids(self, synset_ids: list[str]) -> list[dict[str, Any]]:
+        """
+        Return all chunks that mention any of the given synset ids, matched exactly.
+        The lookup on Sense.synset_id uses the range index behind the
+        sense_synset_id_unique constraint. Chunks that match more distinct
+        synsets rank first.
+        """
+
+        query = """
+        MATCH (sense:Sense)
+        WHERE sense.synset_id IN $synset_ids
+        MATCH (chunk:Chunk)-[:MENTIONS]->(sense)
+        WITH chunk, count(DISTINCT sense) AS matches
+        RETURN chunk.id AS chunk_id, chunk.source AS source, chunk.text AS text, matches
+        ORDER BY matches DESC, chunk_id
+        """
+
+        records, _, _ = self.driver.execute_query(
+            query, synset_ids=synset_ids, database_=self.database
+        )
+        return [record.data() for record in records]
