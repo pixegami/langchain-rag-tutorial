@@ -3,6 +3,8 @@ langchain==0.2.2
 langchain-community==0.2.3
 langchain-openai==0.1.8 # For embeddings
 unstructured==0.14.4 # Document loading
+pypdf # .pdf loading
+docx2txt # .docx loading
 onnxruntime==1.17.1 # chromadb dependency: on Mac use `conda install onnxruntime -c conda-forge`
 # For Windows users, install Microsoft Visual C++ Build Tools first
 # install onnxruntime before installing `chromadb`
