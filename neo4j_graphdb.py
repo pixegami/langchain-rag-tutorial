@@ -36,6 +36,7 @@ class GraphRepository:
         self.driver: Driver = GraphDatabase.driver(
             uri,
             auth=(username, password),
+            notifications_min_severity="WARNING",
         )
 
     # --------------------------------------------------

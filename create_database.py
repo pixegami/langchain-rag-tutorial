@@ -1,5 +1,5 @@
 # from langchain.document_loaders import DirectoryLoader
-from langchain_community.document_loaders import DirectoryLoader
+from langchain_community.document_loaders import DirectoryLoader, PyPDFLoader, Docx2txtLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
 # from langchain.embeddings import OpenAIEmbeddings
@@ -32,8 +32,10 @@ def generate_data_store():
 
 
 def load_documents():
-    loader = DirectoryLoader(DATA_PATH, glob="*.md")
-    documents = loader.load()
+    documents = []
+    documents += DirectoryLoader(DATA_PATH, glob="*.md").load()
+    documents += DirectoryLoader(DATA_PATH, glob="*.pdf", loader_cls=PyPDFLoader).load()
+    documents += DirectoryLoader(DATA_PATH, glob="*.docx", loader_cls=Docx2txtLoader).load()
     return documents
 
 
@@ -46,11 +48,6 @@ def split_text(documents: list[Document]):
     )
     chunks = text_splitter.split_documents(documents)
     print(f"Split {len(documents)} documents into {len(chunks)} chunks.")
-
-    document = chunks[10]
-    print(document.page_content)
-    print(document.metadata)
-
     return chunks
 
 
