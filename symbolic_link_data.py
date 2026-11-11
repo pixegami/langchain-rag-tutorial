@@ -24,7 +24,8 @@ load_dotenv()
 SYMBOLIC_WSD_URL = os.environ.get("SYMBOLIC_WSD_URL")
 if not SYMBOLIC_WSD_URL:
     sys.exit("SYMBOLIC_WSD_URL is not set. Add it to your .env file (see .env.example).")
-API_URL = f"{SYMBOLIC_WSD_URL.rstrip('/')}/api/symbolic-rag-entity-linking"
+API_URL = f"{SYMBOLIC_WSD_URL}api/symbolic-wsd-entity-linking"
+
 
 
 def link_entities(sentence):
