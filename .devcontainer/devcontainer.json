@@ -1,0 +1,20 @@
+{
+    "name": "Symbolic RAG Development Environment",
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "neo4j",
+    "workspaceFolder": "/workspace",
+    "forwardPorts": [
+      7474,
+      7687
+    ],
+    "portsAttributes": {
+      "7474": {
+        "label": "Neo4j Browser",
+        "onAutoForward": "openBrowser"
+      },
+      "7687": {
+        "label": "Neo4j Bolt"
+      }
+    },
+    "shutdownAction": "stopCompose"
+}  

@@ -18,6 +18,7 @@ from dotenv import load_dotenv
 
 # Same loading and chunking as the Chroma pipeline, so chunk ids line up with what create_database.py stores.
 from create_database import load_documents, split_text
+from neo4j_graphdb import GraphRepository
 
 load_dotenv()
 SYMBOLIC_WSD_URL = os.environ.get("SYMBOLIC_WSD_URL")
@@ -66,6 +67,17 @@ def to_senses(result):
         senses.append({"surface": surface, "synset_id": e["synset_id"], "sense": definition})
     return senses
 
+def process_and_store(input_data):
+    graph = GraphRepository()
+ 
+    try:
+        graph.verify_connection()
+        graph.create_constraints()
+        result = graph.insert_data(input_data)
+        return result
+    finally:
+        graph.close()
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -92,16 +104,12 @@ def main():
             results.append({**chunk, "senses": senses})
         print(f"\rOut of {total}, processed {n} ({len(failed)} failed)", end="", file=sys.stderr, flush=True)
     print(file=sys.stderr)
+    graph_data = process_and_store(results)
+    print(graph_data)
 
-    output = json.dumps(results, indent=2, ensure_ascii=False)
-    print(output)
     if failed:
         print(f"Failed chunks: {', '.join(failed)}", file=sys.stderr)
-    if args.out:
-        with open(args.out, "w", encoding="utf-8") as f:
-            f.write(output)
-        print(f"Saved {len(results)} results to {args.out}.", file=sys.stderr)
-
+    
 
 if __name__ == "__main__":
     main()
