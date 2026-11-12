@@ -1,0 +1,6 @@
+outs:
+- md5: 0872b078acb1204d125ffc1f6acf5051.dir
+  size: 358092769
+  nfiles: 8
+  hash: md5
+  path: data/merged_with_tag_un_annotated_haiku

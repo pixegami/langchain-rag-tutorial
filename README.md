@@ -69,4 +69,30 @@ curl -X POST http://localhost:8000/api/v1/query/vector \
 
 Ingestion runs synchronously, so the request stays open until it finishes. Full symbolic ingestion takes about 8 seconds per chunk; pass `limit` for a quick run. A second ingestion of the same type while one is running returns `409`. A script failure returns `500` with the error in `detail`, and an unreachable WSD service returns `502`.
 
+## Load the WordNet graph into Neo4j
+
+[scripts/load-wordnet-graph.sh](scripts/load-wordnet-graph.sh) loads the WordNet glosstag graph that wsd-entity-linker serves on port 7688 (its "ignore-common" graph) into this repo's Neo4j:
+
+```
+(:Synset)-[:GLOSS_LINKS_TO]->(:Sense)-[:IN_SYNSET]->(:Synset)
+```
+
+That is 117,659 Synset nodes, 206,941 Sense nodes and about 880k edges. The script runs on your machine and needs:
+
+- The DevPod workspace running (`devpod up .`). The script loads into its `neo4j-database` container.
+- DVC: `pipx install "dvc[gs]~=3.67"`.
+- Google credentials with the Viewer role on GCP project `symbolic-rag`, set up once with `gcloud auth application-default login`.
+
+```bash
+scripts/load-wordnet-graph.sh
+```
+
+It takes about 3 minutes and runs three steps:
+
+1. `dvc pull` downloads the Haiku-annotated glosstag XML and `common-senses.json` (342 MB) from `gs://symbolic-rag-datasets/dvc` into `wordnet/data/`.
+2. [wordnet/glosstag_to_graph.py](wordnet/glosstag_to_graph.py), a copy of wsd-entity-linker's, builds the CSVs in `wordnet/output/neo4j/`. They match that repo's byte for byte. Later runs skip this step; set `REBUILD=1` to rebuild.
+3. [wordnet/load_wordnet_graph.py](wordnet/load_wordnet_graph.py) MERGEs the CSVs into the running database.
+
+The load keeps the data already in the database and is safe to re-run, because it creates no duplicate nodes or edges. A chunk's `Sense {synset_id}` uses the same ids as WordNet's `Synset {id}` (for example `n00001740`), so the two are treated as the same node: it gets the `Synset` label, and the WordNet edges attach to it next to its `MENTIONS` edges. `neo4j_graphdb.py` does the same for chunks ingested after the load. Wikipedia ids (`w...`) have no WordNet synset and stay plain `Sense` nodes.
+
 Here is a step-by-step tutorial video: [RAG+Langchain Python Project: Easy AI/Chat For Your Docs](https://www.youtube.com/watch?v=tcqEUSNCn8I&ab_channel=pixegami).

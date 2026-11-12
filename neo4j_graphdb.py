@@ -168,6 +168,14 @@ class GraphRepository:
 
         UNWIND item.senses AS sense_data
 
+        // If the WordNet graph is loaded (wordnet/load_wordnet_graph.py), its Synset node
+        // with this id is the same sense: reuse it instead of creating a duplicate.
+        CALL (sense_data) {
+            MATCH (synset:Synset {id: sense_data.synset_id})
+            WHERE synset.synset_id IS NULL
+            SET synset:Sense, synset.synset_id = synset.id
+        }
+
         MERGE (sense:Sense {
             synset_id: sense_data.synset_id
         })

@@ -1,0 +1,6 @@
+# WordNet dataset pulled by DVC, its built CSVs, and DVC's cache (see scripts/load-wordnet-graph.sh)
+.dvc/cache
+.dvc/tmp
+wordnet/data
+wordnet/output
+wordnet/output.tmp

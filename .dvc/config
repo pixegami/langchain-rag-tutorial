@@ -1,0 +1,4 @@
+[core]
+    remote = gcs
+['remote "gcs"']
+    url = gs://symbolic-rag-datasets/dvc

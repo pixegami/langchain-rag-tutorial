@@ -1,0 +1,5 @@
+outs:
+- md5: fcf8e33311f0fb2db62e6700111ed0e8
+  size: 321480
+  hash: md5
+  path: data/common-senses.json
